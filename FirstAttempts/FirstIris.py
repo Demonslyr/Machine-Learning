@@ -5,10 +5,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import argparse
 import sys
-
-from tensorflow.examples.tutorials.mnist import input_data
 
 import random
 import numpy as np
@@ -63,19 +60,24 @@ def main():
     #adding the more stable cross entropy
     cross_entropy = tf.reduce_mean(
         tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
-    train_step = tf.train.GradientDescentOptimizer(0.03).minimize(cross_entropy)
-
-    sess = tf.InteractiveSession()
-    tf.global_variables_initializer().run()
-
-    #train
-    for _ in range(10000):
-        batch_xs, batch_ys = getBatch(irisTrain, 20)
-        sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
+    train_step = tf.train.GradientDescentOptimizer(0.003).minimize(cross_entropy)
 
     #now test the model
     correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
+    sess = tf.InteractiveSession()
+    tf.global_variables_initializer().run()
+    desiredBatch = 25
+    batchSize = desiredBatch if desiredBatch < trainSplit else trainSplit
+    #train
+    for i in range(10000):
+        batch_xs, batch_ys = getBatch(irisTrain, batchSize )
+        if i % 100 == 0:
+            train_accuracy = accuracy.eval(feed_dict={
+                x: batch_xs, y_: batch_ys})
+            print('step %d, training accuracy %g' % (i, train_accuracy))
+        sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
 
     #hacky way to put the test data in tyhe form I need
     irisTest_x, irisTest_y_ = getBatch(irisTest, len(irisTest))
