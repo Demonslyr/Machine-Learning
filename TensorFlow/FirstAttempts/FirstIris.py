@@ -68,13 +68,14 @@ def main():
 
     sess = tf.InteractiveSession()
     tf.global_variables_initializer().run()
-    desiredBatch = 25
+    desiredBatch = 60
     batchSize = desiredBatch if desiredBatch < trainSplit else trainSplit
     #train
     for i in range(10000):
         batch_xs, batch_ys = getBatch(irisTrain, batchSize )
         if i % 100 == 0:
-            train_accuracy = accuracy.eval(feed_dict={
+            train_accuracy = accuracy.eval(
+                feed_dict={
                 x: batch_xs, y_: batch_ys})
             print('step %d, training accuracy %g' % (i, train_accuracy))
         sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
